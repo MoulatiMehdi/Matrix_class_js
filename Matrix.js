@@ -15,6 +15,11 @@ class Matrix {
         }
     }
 
+    /**
+     * Get the n th row (start from 0)
+     * @param row : Number
+     * @return {Array}
+     */
     getRow(row) {
         if (row >= 0 && row < M.row)
             return this.matrix[row]
@@ -23,6 +28,11 @@ class Matrix {
         }
     }
 
+    /**
+     * Get the n th column (start from 0)
+     * @param col : Number
+     * @return {Array}
+     */
     getColumn(col) {
         if (col >= 0 && col < M.col)
             return this.matrix.map(c => c[col])
@@ -38,18 +48,35 @@ class Matrix {
 
     }
 
+    /**
+     * Calculate the determination of matrix
+     * @return {number}
+     */
     determination() {
         return Matrix.#determination(this.matrix)
     }
 
+    /**
+     * Is the matrix Independent or Not
+     * @return {boolean}
+     */
     isIndependent() {
         return this.determination() !== 0;
     }
 
+    /**
+     * Is the matrix is Squared or not (matrix of type n x n)
+     * @return {boolean}
+     */
     isSquared() {
         return this.row === this.col && this.row > 0
     }
 
+    /**
+     * Swap two lines of  matrix
+     * @param i : Number
+     * @param j : Number
+     */
     swapLines(i, j) {
         try {
             let tmp = this.getRow(i)
@@ -69,9 +96,9 @@ class Matrix {
     }
 
     static #swapLines(M, i, j) {
-        if(M.length<i || M.length < j)
+        if (M.length < i || M.length < j)
             throw `IndexError: \n\tRow number exceeds the range.`
-        else{
+        else {
             let tmp = M[i]
             M[i] = M[j]
             M[j] = tmp
@@ -103,7 +130,7 @@ class Matrix {
                             for (let j = i + 1; i < size; j++) {
                                 if (M[j][i] !== 0) {
                                     C_1 = M[j][i]
-                                    this.#swapLines(M,i,j)
+                                    this.#swapLines(M, i, j)
                                     result *= -1
                                     break
                                 }
