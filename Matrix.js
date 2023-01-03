@@ -28,6 +28,15 @@ class Matrix {
         }
     }
 
+    static Identity(n) {
+        let array = Array(n)
+        for (let i = 0; i < n; i++) {
+            array[i] = Array(n).fill(0)
+            array[i][i] = 1
+        }
+        return array
+    }
+
     /**
      * Get the n th column (start from 0)
      * @param col : Number
@@ -64,6 +73,37 @@ class Matrix {
         return this.determination() !== 0;
     }
 
+    solve() {
+        let arr = Object.values(
+            arguments.length === 1 ? arguments[0] : arguments)
+
+        if (!Array.isArray(arr)) {
+            throw 'TypeError : \n\tParameters Type must be an Array'
+        } else {
+            arr.map(c => +c)
+        }
+
+        if (arr.length !== this.row) {
+            throw `IndexError : \n\t Number of element must be equal to ${this.row} rows`
+        } else if (arr.includes(NaN)) {
+            throw 'TypeError : \n\t Elements of the Array must be of type Number'
+        } else {
+            let D = this.determination()
+            if (D === 0) return null
+            else {
+                let solutions = []
+                let Mi = Matrix.#copyMatrix(this.matrix)
+                for (let i = 0; i < this.row; i++) {
+
+                    Matrix.#setColumns(Mi, i, arr)
+                    solutions.push(Matrix.#determination(Mi) / D)
+                    Matrix.#setColumns(Mi, i, this.getColumn(i))
+                }
+                return solutions
+            }
+        }
+    }
+
     /**
      * Is the matrix is Squared or not (matrix of type n x n)
      * @return {boolean}
@@ -95,6 +135,34 @@ class Matrix {
         }
     }
 
+    diagonalize(M) {
+
+    }
+
+    static inverse(M) {
+        if (this.#determination(M) === 0)
+            return null
+        else {
+            let In = this.Identity(M.length)
+            let Mi = this.#copyMatrix(M)
+
+        }
+    }
+
+    static #setLines(matrix, row, values) {
+        matrix[row].map((c, index) => values[index])
+    }
+
+    static #setColumns(matrix, column, values) {
+        for (let j = 0; j < matrix.length; j++) {
+            matrix[j][column] = values[j]
+        }
+    }
+
+    #check_Line(Matrix, line) {
+
+    }
+
     static #swapLines(M, i, j) {
         if (M.length < i || M.length < j)
             throw `IndexError: \n\tRow number exceeds the range.`
@@ -106,7 +174,12 @@ class Matrix {
     }
 
     static #isSquared(M) {
-        return M.length === M[0].length
+        return M.length === M[0].length && M.length > 0
+    }
+
+    static #checkLine(M) {
+
+
     }
 
     static #determination(matrix) {
@@ -115,38 +188,37 @@ class Matrix {
             let size = matrix.length
 
             if (this.#isSquared(matrix)) {
-                if (Matrix.#isZero(matrix, size, size)) {
-                    return 0
-                } else {
-                    let result = 1
-                    let M = Matrix.#copyMatrix(matrix)
-                    for (let i = 0; i < size - 1; i++) {
-                        let C_1 = M[i][i]
 
-                        // is Coefficient null  ?
-                        if (C_1 === 0) {
+                let result = 1
+                let M = Matrix.#copyMatrix(matrix)
+                for (let i = 0; i < size - 1; i++) {
+                    let C_1 = M[i][i]
 
-                            // find a line to swap it with
-                            for (let j = i + 1; i < size; j++) {
-                                if (M[j][i] !== 0) {
-                                    C_1 = M[j][i]
-                                    this.#swapLines(M, i, j)
-                                    result *= -1
-                                    break
-                                }
+                    // is Coefficient null  ?
+                    if (C_1 === 0) {
+
+                        // find a line to swap it with
+                        for (let j = i + 1; i < size; j++) {
+                            if (M[j][i] !== 0) {
+                                C_1 = M[j][i]
+                                this.#swapLines(M, i, j)
+                                result *= -1
+                                break
                             }
-                            if (C_1 === 0) return 0
                         }
-                        result *= C_1
-
-                        for (let j = i + 1; j < size; j++) {
-                            let C_2 = M[j][i]
-                            if (C_2 === 0) continue
-                            M[j] = M[j].map((c, k) => C_2 * M[i][k] - C_1 * M[j][k])
-                        }
+                        if (C_1 === 0) return 0
                     }
-                    return result * M[size - 1][size - 1]
+                    result *= C_1
+
+                    for (let j = i + 1; j < size; j++) {
+                        let C_j = M[j][i]
+                        if (C_j === 0) continue
+                        //
+                        M[j] = M[j].map((c, k) => M[j][k] - M[i][k] * C_j / C_1)
+                    }
                 }
+                return result * M[size - 1][size - 1]
+
             } else {
                 throw "SyntaxError: \n\tthe Matrix must be squared"
             }
@@ -164,23 +236,6 @@ class Matrix {
             }
         }
         return newMatrix
-    }
-
-    static #isZero(M, row, col) {
-
-        let sum_row = 0
-        let sum_col = 0
-        for (let i = 0; i < row; i++) {
-
-            for (let j = 0; j < col; j++) {
-                sum_row += M[i][j]
-                sum_col += M[j][i]
-            }
-            if (sum_row * sum_col === 0) return true
-            sum_col = 0
-            sum_row = 0
-        }
-        return false
     }
 
     static #prepare_matrix(M) {
@@ -212,7 +267,12 @@ class Matrix {
 
 }
 
-M = new Matrix([0, 2, -1], [0, -1, 2], [3, 5, -3])
-console.table(M.determination())
-console.table(M.matrix)
+M = new Matrix(
+    [0, 1, 0],
+    [0, 0, 1],
+    [-2, 1, 2]
+)
 
+console.log(M.determination())
+
+console.table()
